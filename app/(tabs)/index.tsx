@@ -1,13 +1,37 @@
-import { Image, StyleSheet, Platform } from "react-native";
+import { Image, StyleSheet, Platform, FlatList } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Button, Text, useTheme } from "react-native-paper";
+import { Button, Chip, Text, useTheme } from "react-native-paper";
+import { useEffect, useState } from "react";
+import { getData } from "@/utils/api";
+import { Category } from "../types/types";
+import AddJournal from "../../components/add-journal/add-journal";
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [modalMode, setModalMode] = useState<string | null>(null);
+
+  const toggleModal = (mode: string | null) => {
+    console.log(mode);
+    setModalMode(mode);
+  };
+
+  const fetchCategories = async () => {
+    const url = "/api/category";
+    const { success, data } = await getData(url, {});
+
+    if (success) {
+      setCategories(data.categories);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   return (
     <ParallaxScrollView
@@ -18,17 +42,21 @@ export default function HomeScreen() {
         <Text variant="displaySmall" style={styles.title}>
           Welcome!
         </Text>
-        <Button mode="contained" onPress={() => {}}>
+        <Button mode="contained" onPress={() => toggleModal("add")}>
           Add A Journal
         </Button>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">{Platform.select({ ios: "cmd + d", android: "cmd + m" })}</ThemedText> to open
-          developer tools.
-        </ThemedText>
+        <FlatList
+          horizontal
+          data={categories}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Chip icon="star" style={{ margin: 4 }}>
+              {item.name}
+            </Chip>
+          )}
+        />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>
@@ -42,6 +70,7 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+      {modalMode === "add" && <AddJournal onAction={() => {}} onClose={() => toggleModal(null)} title="Add Journal" />}
     </ParallaxScrollView>
   );
 }

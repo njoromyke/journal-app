@@ -8,7 +8,7 @@ import { AuthProvider } from "@/context/auth-provider";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { darkTheme, lightTheme } from "@/utils/theme/theme";
 import { StatusBar } from "expo-status-bar";
-import { ThemeProvider } from "react-native-paper";
+import { PaperProvider, ThemeProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const unstable_settings = {
@@ -35,13 +35,15 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <SafeAreaProvider>
-        <ThemeProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
-          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-          <Slot />
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </AuthProvider>
+    <PaperProvider>
+      <AuthProvider>
+        <SafeAreaProvider>
+          <ThemeProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+            <Slot />
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </AuthProvider>
+    </PaperProvider>
   );
 }

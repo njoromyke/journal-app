@@ -1,23 +1,16 @@
-import { Redirect, Tabs } from "expo-router";
-import React, { useContext } from "react";
+import { Slot, SplashScreen, Tabs, useRouter } from "expo-router";
+import React, { useContext, useEffect } from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import AuthContext from "@/context/auth-context";
+import { StyleSheet, TouchableOpacity, useColorScheme, View } from "react-native";
 import { useTheme } from "react-native-paper";
-import { useColorScheme } from "react-native";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const theme = useTheme();
-  const { token, loading } = useContext(AuthContext);
   const colorScheme = useColorScheme();
-
-  if (loading) {
-    return null;
-  }
-
-  if (!token && !loading) {
-    <Redirect href="/home" />;
-  }
 
   return (
     <Tabs
@@ -36,6 +29,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "home" : "home-outline"} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{

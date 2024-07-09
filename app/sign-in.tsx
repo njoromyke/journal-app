@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
@@ -16,6 +16,7 @@ type SignIn = {
 const SignIn = () => {
   const theme = useTheme();
   const router = useRouter();
+  const colorScheme = useColorScheme();
 
   const [userData, setUserData] = useState<SignIn>({
     email: "",
@@ -71,14 +72,7 @@ const SignIn = () => {
           <Text style={styles.header} variant="headlineLarge">
             Let's Login
           </Text>
-          <Text
-            variant="bodyLarge"
-            style={{
-              color: "grey.300",
-            }}
-          >
-            Add Notes to your idea
-          </Text>
+          <Text variant="bodyLarge">Add Notes to your idea</Text>
 
           <TextInput
             label="Email"
@@ -120,11 +114,16 @@ const SignIn = () => {
             }}
           />
 
-          <Button mode="contained" style={styles.button} onPress={onSubmit}>
+          <Button mode="contained" style={styles.button} onPress={onSubmit} textColor="white" loading={loading}>
             Login
           </Button>
 
-          <Button mode="text" style={styles.button} onPress={navigate}>
+          <Button
+            mode="text"
+            style={styles.button}
+            onPress={navigate}
+            textColor={colorScheme === "dark" ? "white" : theme.colors.primary}
+          >
             Don't Have an Account ? Sign Up
           </Button>
         </View>

@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
@@ -17,6 +17,8 @@ type SignUp = {
 const SignUp = () => {
   const theme = useTheme();
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [userData, setUserData] = useState<SignUp>({
     email: "",
@@ -41,6 +43,7 @@ const SignUp = () => {
       setError("Please fill in the required fields");
       setShowSnackbar(true);
     } else {
+      setLoading(true);
       const url = "/api/users";
 
       const { name, email, password } = userData;
@@ -49,14 +52,13 @@ const SignUp = () => {
 
       if (success) {
         await setStorageItemAsync(config.STORAGE_KEY, data?.user?.token);
-
-        console.log(data);
-
         router.replace("(tabs)");
       } else {
         setError(error || "An error occurred");
         setShowSnackbar(true);
       }
+
+      setLoading(false);
     }
   };
 
@@ -76,7 +78,7 @@ const SignUp = () => {
           <Text
             variant="bodyLarge"
             style={{
-              color: "grey.300",
+              color: colorScheme === "dark" ? "white" : "grey.300",
             }}
           >
             Add start taking journals
@@ -135,11 +137,16 @@ const SignUp = () => {
               justifyContent: "center",
             }}
           />
-          <Button mode="contained" style={styles.button} onPress={onSubmit}>
+          <Button mode="contained" style={styles.button} onPress={onSubmit} textColor="white" loading={loading}>
             Register
           </Button>
 
-          <Button mode="text" style={styles.button} onPress={navigate}>
+          <Button
+            mode="text"
+            style={styles.button}
+            onPress={navigate}
+            textColor={colorScheme === "dark" ? "white" : theme.colors.primary}
+          >
             Have an Account ? Sign In
           </Button>
         </View>

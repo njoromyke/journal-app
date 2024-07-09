@@ -1,7 +1,7 @@
 import { Image, StyleSheet, View } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Icon, Text, useTheme } from "react-native-paper";
+import { Button, Icon, useTheme, Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 
 const Home = () => {
@@ -9,19 +9,17 @@ const Home = () => {
   const router = useRouter();
 
   const onPress = () => {
-    router.replace("sign-in");
+    router.push("sign-up");
   };
 
   return (
     <SafeAreaView
       style={{
-        backgroundColor: theme.colors.primary,
         flex: 1,
-        padding: 20,
+        backgroundColor: theme.colors.primary,
       }}
     >
       <Image source={require("@/assets/images/home-illustration.png")} style={styles.home} fadeDuration={300} />
-
       <View style={styles.view}>
         <Text
           variant="headlineSmall"

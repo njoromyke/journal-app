@@ -39,6 +39,8 @@ export const darkTheme = {
     secondary: "#DEDC52",
     success: "#00C851",
     onSuccess: "#ffffff",
+    onPrimary: "#FFFFFF",
+    onSecondary: "#ffffff",
     grey: {
       50: "#F5F5F5",
       100: "#EEEEEE",

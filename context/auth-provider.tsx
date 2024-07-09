@@ -1,5 +1,5 @@
 import { getStorageItemAsync, useStorageState } from "@/hooks/useStorageState";
-import { postData } from "@/utils/api";
+import { getData, postData } from "@/utils/api";
 import config from "@/utils/config/global-config";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import AuthContext from "./auth-context";
@@ -21,12 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     setLoading(true);
 
-    const url = "/v1/users/user";
-    const { success, data, error } = await postData(url, {});
+    const url = "/api/users/user/me";
+    const { success, data } = await getData(url, {});
 
     if (success) {
       setUser(data.user);
-      setToken(data.token);
+      setToken(data.user?.token);
     } else {
       setToken(null);
       setUser(null);
@@ -36,8 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    fetchUser();
+    getToken();
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    }
+  }, [token]);
 
   const values = useMemo(() => {
     return { loading, token, user };

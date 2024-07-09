@@ -1,33 +1,46 @@
-import { Tabs } from "expo-router";
-import React from "react";
+import { Redirect, Tabs } from "expo-router";
+import React, { useContext } from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import AuthContext from "@/context/auth-context";
 import { useTheme } from "react-native-paper";
+import { useColorScheme } from "react-native";
 
 export default function TabLayout() {
   const theme = useTheme();
+  const { token, loading } = useContext(AuthContext);
+  const colorScheme = useColorScheme();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!token && !loading) {
+    <Redirect href="/home" />;
+  }
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[theme.dark ? "light" : "dark"].tint,
+        tabBarActiveTintColor: colorScheme === "dark" ? theme.colors.secondary : theme.colors.primary,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+        },
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "home" : "home-outline"} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
-          title: "Explore",
-          tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "code-slash" : "code-slash-outline"} color={color} />,
+          title: "Profile",
+          tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "person" : "person-outline"} color={color} />,
         }}
       />
     </Tabs>

@@ -14,6 +14,18 @@ export const lightTheme = {
     onSecondary: "#ffffff",
     success: "#00C851",
     onSuccess: "#ffffff",
+    grey: {
+      50: "#F5F5F5",
+      100: "#EEEEEE",
+      200: "#E0E0E0",
+      300: "#BDBDBD",
+      400: "#9E9E9E",
+      500: "#757575",
+      600: "#616161",
+      700: "#424242",
+      800: "#212121",
+      900: "#000000",
+    },
   },
 };
 
@@ -27,5 +39,17 @@ export const darkTheme = {
     secondary: "#DEDC52",
     success: "#00C851",
     onSuccess: "#ffffff",
+    grey: {
+      50: "#F5F5F5",
+      100: "#EEEEEE",
+      200: "#E0E0E0",
+      300: "#BDBDBD",
+      400: "#9E9E9E",
+      500: "#757575",
+      600: "#616161",
+      700: "#424242",
+      800: "#212121",
+      900: "#000000",
+    },
   },
 };

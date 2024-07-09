@@ -1,9 +1,7 @@
-import { View, Text } from "react-native";
-import React, { useContext } from "react";
-import { Redirect, Stack } from "expo-router";
-import { useSession } from "@/hooks/useSession";
-import Loader from "@/components/loader/loader";
 import AuthContext from "@/context/auth-context";
+import { Redirect, Stack } from "expo-router";
+import React, { useContext } from "react";
+import { Text } from "react-native";
 
 const Index = () => {
   const { token, loading } = useContext(AuthContext);
@@ -12,6 +10,8 @@ const Index = () => {
   if (loading) {
     return <Text>Loading...</Text>;
   }
+
+  console.log(loading, "loading");
 
   if (!token && !loading) {
     return <Redirect href="/home" />;

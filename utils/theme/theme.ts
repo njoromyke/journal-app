@@ -35,7 +35,7 @@ export const darkTheme = {
   version: 3,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: "#3A2258",
+    primary: "#6A3EA1",
     secondary: "#DEDC52",
     success: "#00C851",
     onSuccess: "#ffffff",

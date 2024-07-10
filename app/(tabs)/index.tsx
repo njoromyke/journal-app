@@ -70,7 +70,9 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
-      {modalMode === "add" && <AddJournal onAction={() => {}} onClose={() => toggleModal(null)} title="Add Journal" />}
+      {modalMode === "add" && (
+        <AddJournal categories={categories} onClose={() => toggleModal(null)} title="Add Journal" />
+      )}
     </ParallaxScrollView>
   );
 }

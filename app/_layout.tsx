@@ -10,6 +10,7 @@ import { darkTheme, lightTheme } from "@/utils/theme/theme";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider, ThemeProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const unstable_settings = {
   initialRouteName: "app",
@@ -40,7 +41,9 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <ThemeProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <Slot />
+            <GestureHandlerRootView>
+              <Slot />
+            </GestureHandlerRootView>
           </ThemeProvider>
         </SafeAreaProvider>
       </AuthProvider>

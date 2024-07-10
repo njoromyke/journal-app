@@ -1,18 +1,19 @@
-import { FlatList, Image, Platform, StyleSheet, View } from "react-native";
+import { FlatList, Image, Platform, StyleSheet, useColorScheme, View } from "react-native";
 
+import FiltersModal from "@/components/filters-modal/filters-modal";
 import Loader from "@/components/loader/loader";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedView } from "@/components/ThemedView";
 import { getData } from "@/utils/api";
 import { formatDate } from "@/utils/date";
-import { useEffect, useRef, useState } from "react";
+import { Link, router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Button, Card, Chip, IconButton, Searchbar, Text, useTheme } from "react-native-paper";
-import AddJournal from "../../components/add-journal/add-journal";
 import { Category, Journal, RepParams } from "../types/types";
-import FiltersModal from "@/components/filters-modal/filters-modal";
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const colorScheme = useColorScheme();
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalMode, setModalMode] = useState<string | null>(null);
   const [reqParams, setReqParams] = useState<RepParams>({
@@ -75,7 +76,12 @@ export default function HomeScreen() {
         <Text variant="displaySmall" style={styles.title}>
           Welcome!
         </Text>
-        <Button mode="contained" onPress={() => toggleModal("add")}>
+        <Button
+          mode="contained"
+          onPress={() => {
+            router.push("/journal/add-journal");
+          }}
+        >
           Add A Journal
         </Button>
       </ThemedView>
@@ -116,55 +122,49 @@ export default function HomeScreen() {
             <Card
               style={{
                 padding: 8,
-                backgroundColor: theme.colors.secondary,
+                backgroundColor: colorScheme === "dark" ? theme.colors.primary : theme.colors.secondary,
                 width: Platform.OS === "web" ? 300 : "100%",
+                borderRadius: 6,
               }}
             >
               <Card.Title title={item.title} />
               <Card.Content>
                 <Text>{item.content}</Text>
-
+              </Card.Content>
+              <Card.Actions
+                style={{
+                  gap: 8,
+                }}
+              >
                 <View style={styles.view}>
                   <Chip icon="star" style={{ margin: 4 }}>
                     {item?.category?.name}
                   </Chip>
                   <Text
                     style={{
-                      color: theme.colors.primary,
+                      color: colorScheme === "dark" ? "white" : theme.colors.primary,
                       fontSize: 12,
                     }}
                   >
                     {formatDate(item.date)}
                   </Text>
                 </View>
-              </Card.Content>
-              <Card.Actions>
-                <IconButton
-                  icon="pencil"
-                  onPress={() => {
-                    toggleModal("edit");
-                    setSelectedJournal(item);
-                  }}
-                />
+                <Link href={`/journal/edit/${item.id}`} asChild>
+                  <IconButton
+                    icon="pencil"
+                    onPress={() => {
+                      toggleModal("edit");
+                      setSelectedJournal(item);
+                    }}
+                    size={20}
+                    iconColor={colorScheme === "dark" ? theme.colors.secondary : theme.colors.primary}
+                  />
+                </Link>
               </Card.Actions>
             </Card>
           </View>
         ))}
       </ThemedView>
-      {(modalMode === "add" || modalMode === "edit") && (
-        <AddJournal
-          setRefresh={setRefresh}
-          refresh={refresh}
-          categories={categories}
-          onClose={() => {
-            toggleModal(null);
-            setSelectedJournal(null);
-          }}
-          title="Add Journal"
-          selectedJournal={selectedJournal}
-          mode={modalMode}
-        />
-      )}
 
       {showSheet && (
         <FiltersModal categories={categories} reqParams={reqParams} onClose={toggleSheet} setReqParams={setReqParams} />

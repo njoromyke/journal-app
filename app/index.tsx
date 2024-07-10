@@ -9,7 +9,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
   const theme = useTheme();
-  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 

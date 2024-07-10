@@ -30,6 +30,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="categories"
+        options={{
+          title: "Categories",
+          tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "grid" : "grid-outline"} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",

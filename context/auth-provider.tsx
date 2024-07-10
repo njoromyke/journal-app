@@ -18,6 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = await getStorageItemAsync(config.STORAGE_KEY);
     setToken(token);
 
+    if (token) {
+      fetchUser();
+    }
+
     setLoading(false);
   };
 
@@ -48,12 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     getToken();
   }, []);
-
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    }
-  }, [token]);
 
   useEffect(() => {
     if (token && user?.id) {

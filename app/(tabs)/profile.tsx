@@ -1,102 +1,125 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
+import { Alert, StyleSheet, useColorScheme, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, IconButton, useTheme, Button, Divider, List } from "react-native-paper";
+import AuthContext from "@/context/auth-context";
+import { getData } from "@/utils/api";
+import { User } from "@/context/types/user";
+import { setStorageItemAsync } from "@/hooks/useStorageState";
+import config from "@/utils/config/global-config";
+import { Link, router } from "expo-router";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Profile = () => {
+  const theme = useTheme();
+  const [user, setUser] = useState<User | null>(null);
+  const colorScheme = useColorScheme();
 
-export default function TabTwoScreen() {
+  const logout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          await setStorageItemAsync(config.STORAGE_KEY, null);
+          router.replace("sign-in");
+        },
+      },
+    ]);
+  };
+
+  const fetchUser = async () => {
+    const url = "/api/users/user/me";
+    const { success, data } = await getData(url, {});
+
+    if (success) {
+      setUser(data.user);
+    } else {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.background,
+        padding: 20,
+      }}
+    >
+      <View style={styles.profile}>
+        <IconButton size={80} style={{ backgroundColor: theme.colors.primary }} icon="account" />
+        <View style={styles.texts}>
+          <Text variant="headlineSmall">{user?.name}</Text>
+          <Text
+            style={{
+              color: colorScheme === "dark" ? "grey" : "grey.300",
+            }}
+            variant="bodyMedium"
+          >
+            {user?.email}
+          </Text>
+        </View>
+      </View>
+      <Link href={`/profile/${user?.id}`} asChild>
+        <Button mode="contained" icon={({}) => <IconButton icon="account-edit" size={25} iconColor="white" />}>
+          Edit Profile
+        </Button>
+      </Link>
+      <Divider
+        style={{
+          marginVertical: 20,
+        }}
+      />
+
+      <List.Section>
+        <List.Item title="Change Password" left={() => <List.Icon icon="key" />} onPress={() => {}} />
+        <List.Item title="Delete Account" left={() => <List.Icon icon="delete" />} onPress={() => {}} />
+        <List.Item title="Privacy Policy" left={() => <List.Icon icon="shield" />} onPress={() => {}} />
+        <List.Item title="Terms of Service" left={() => <List.Icon icon="file-document" />} onPress={() => {}} />
+      </List.Section>
+      <Divider
+        style={{
+          marginVertical: 20,
+        }}
+      />
+      <View style={styles.logout}>
+        <List.Item
+          title="Logout"
+          left={() => <List.Icon icon="logout" />}
+          onPress={() => {
+            logout();
+          }}
+        />
+      </View>
+    </SafeAreaView>
   );
-}
+};
+
+export default Profile;
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  profile: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    gap: 5,
+    alignItems: "center",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  texts: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  logout: {
+    marginBottom: 20,
+    marginTop: 20,
+    flex: 1,
+    justifyContent: "flex-end",
   },
 });

@@ -64,3 +64,45 @@ export const getData = async (endpoint: string, body?: GetDataRequest, useToken:
     return { success: false, error: errorMessage };
   }
 };
+
+export const putData = async (endpoint: string, data: PostDataRequest, useToken: boolean = true): Promise<PostDataResponse> => {
+  try {
+    if (useToken) {
+      const token = await getStorageItemAsync(config.STORAGE_KEY);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response: AxiosResponse<any> = await api.put(endpoint, data);
+    return { success: true, data: response.data };
+  } catch (error: any) {
+    console.error("Error putting data:", error);
+    const errorMessage = error.response?.data?.message || error.message || "Unknown error";
+    return { success: false, error: errorMessage };
+  }
+};
+
+type DeleteDataRequest = {
+  [key: string]: any;
+};
+
+type DeleteDataResponse = {
+  success: boolean;
+  data?: any;
+  error?: string;
+};
+
+export const deleteData = async (endpoint: string, useToken: boolean = true): Promise<DeleteDataResponse> => {
+  try {
+    if (useToken) {
+      const token = await getStorageItemAsync(config.STORAGE_KEY);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response: AxiosResponse<any> = await api.delete(endpoint);
+    return { success: true, data: response.data };
+  } catch (error: any) {
+    console.error("Error deleting data:", error);
+    const errorMessage = error.response?.data?.message || error.message || "Unknown error";
+    return { success: false, error: errorMessage };
+  }
+};

@@ -1,29 +1,25 @@
-import { Category } from "@/app/types/types";
+import { Category, Journal } from "@/app/types/types";
 import { Picker } from "@react-native-picker/picker";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ScrollView, useColorScheme, View } from "react-native";
 import { Button, Dialog, Portal, TextInput, useTheme } from "react-native-paper";
 import { enGB, registerTranslation } from "react-native-paper-dates";
 import DatePicker from "../date-picker/date";
 import Snack from "../snack/snack";
-import { postData } from "@/utils/api";
+import { postData, putData } from "@/utils/api";
 registerTranslation("en", enGB);
 
 type Props = {
   onClose: () => void;
   title: string;
   categories?: Category[];
+  setRefresh: Dispatch<SetStateAction<boolean>>;
+  refresh: boolean;
+  selectedJournal: Journal | null;
+  mode: "add" | "edit";
 };
 
-type Journal = {
-  title: string;
-  content: string;
-  categoryId: string;
-  date: Date;
-  category?: Category;
-};
-
-const AddJournal = ({ onClose, title, categories }: Props) => {
+const AddJournal = ({ onClose, title, categories, setRefresh, mode, refresh, selectedJournal }: Props) => {
   const colorScheme = useColorScheme();
   const [journal, setJournal] = useState<Journal>({
     title: "",
@@ -43,22 +39,45 @@ const AddJournal = ({ onClose, title, categories }: Props) => {
       setMessage("Please fill in the required fields");
       toggleSnackbar();
     } else {
-      const url = "api/journals";
+      if (mode === "add") {
+        const url = "api/journals";
 
-      const { title, content, categoryId, date } = journal;
+        const { title, content, categoryId, date } = journal;
 
-      const { success, error } = await postData(url, { title, content, categoryId, date });
+        const { success, error } = await postData(url, { title, content, categoryId, date });
 
-      if (success) {
-        setMessage("Journal added successfully");
-        toggleSnackbar();
-        onClose();
+        if (success) {
+          setMessage("Journal added successfully");
+          toggleSnackbar();
+          onClose();
+          setRefresh(!refresh);
+        } else {
+          setMessage(error || "An error occurred");
+          toggleSnackbar();
+        }
       } else {
-        setMessage(error || "An error occurred");
-        toggleSnackbar();
+        const url = `api/journals/${selectedJournal?.id}`;
+
+        const { title, content, categoryId, date } = journal;
+
+        const { success, error } = await putData(url, { title, content, categoryId, date });
+
+        if (success) {
+          setMessage("Journal updated successfully");
+          toggleSnackbar();
+          onClose();
+          setRefresh(!refresh);
+        } else {
+          setMessage(error || "An error occurred");
+          toggleSnackbar();
+        }
       }
     }
   };
+
+  useEffect(() => {
+    if (selectedJournal?.id) setJournal(selectedJournal);
+  }, [selectedJournal?.id]);
 
   return (
     <Portal theme={theme}>

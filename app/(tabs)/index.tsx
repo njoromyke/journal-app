@@ -1,23 +1,40 @@
-import { Image, StyleSheet, Platform, FlatList } from "react-native";
+import { FlatList, Image, Platform, StyleSheet, View } from "react-native";
 
-import { HelloWave } from "@/components/HelloWave";
+import Loader from "@/components/loader/loader";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Button, Chip, Text, useTheme } from "react-native-paper";
-import { useEffect, useState } from "react";
 import { getData } from "@/utils/api";
-import { Category } from "../types/types";
+import { formatDate } from "@/utils/date";
+import { useEffect, useRef, useState } from "react";
+import { Button, Card, Chip, IconButton, Searchbar, Text, useTheme } from "react-native-paper";
 import AddJournal from "../../components/add-journal/add-journal";
+import { Category, Journal, RepParams } from "../types/types";
+import FiltersModal from "@/components/filters-modal/filters-modal";
 
 export default function HomeScreen() {
   const theme = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalMode, setModalMode] = useState<string | null>(null);
+  const [reqParams, setReqParams] = useState<RepParams>({
+    date: "",
+    filterText: "",
+    categoryId: "",
+  });
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
+  const [showSheet, setShowSheet] = useState<boolean>(false);
+
+  const toggleSheet = () => setShowSheet(!showSheet);
 
   const toggleModal = (mode: string | null) => {
     console.log(mode);
     setModalMode(mode);
+  };
+
+  const handleOpenBottomSheet = () => {
+    toggleSheet();
   };
 
   const fetchCategories = async () => {
@@ -29,9 +46,25 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchJournals = async () => {
+    setLoading(true);
+    const url = "/api/journals";
+    const { success, data } = await getData(url, reqParams);
+
+    if (success) {
+      setJournals(data.journals);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    fetchJournals();
+  }, [reqParams, refresh]);
 
   return (
     <ParallaxScrollView
@@ -59,19 +92,82 @@ export default function HomeScreen() {
         />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>Tap the Explore tab to learn more about what's included in this starter app.</ThemedText>
+        <View style={styles.view}>
+          <Searchbar
+            placeholder="Search"
+            onChangeText={(text) => setReqParams({ ...reqParams, filterText: text })}
+            value={reqParams.filterText}
+            style={{ flex: 1 }}
+          />
+          <IconButton
+            icon="filter"
+            iconColor={theme.colors.primary}
+            onPress={() => {
+              handleOpenBottomSheet();
+            }}
+          />
+        </View>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+        {loading && <Loader />}
+
+        {journals.map((item) => (
+          <View style={styles.cards} key={item.id}>
+            <Card
+              style={{
+                padding: 8,
+                backgroundColor: theme.colors.secondary,
+                width: Platform.OS === "web" ? 300 : "100%",
+              }}
+            >
+              <Card.Title title={item.title} />
+              <Card.Content>
+                <Text>{item.content}</Text>
+
+                <View style={styles.view}>
+                  <Chip icon="star" style={{ margin: 4 }}>
+                    {item?.category?.name}
+                  </Chip>
+                  <Text
+                    style={{
+                      color: theme.colors.primary,
+                      fontSize: 12,
+                    }}
+                  >
+                    {formatDate(item.date)}
+                  </Text>
+                </View>
+              </Card.Content>
+              <Card.Actions>
+                <IconButton
+                  icon="pencil"
+                  onPress={() => {
+                    toggleModal("edit");
+                    setSelectedJournal(item);
+                  }}
+                />
+              </Card.Actions>
+            </Card>
+          </View>
+        ))}
       </ThemedView>
-      {modalMode === "add" && (
-        <AddJournal categories={categories} onClose={() => toggleModal(null)} title="Add Journal" />
+      {(modalMode === "add" || modalMode === "edit") && (
+        <AddJournal
+          setRefresh={setRefresh}
+          refresh={refresh}
+          categories={categories}
+          onClose={() => {
+            toggleModal(null);
+            setSelectedJournal(null);
+          }}
+          title="Add Journal"
+          selectedJournal={selectedJournal}
+          mode={modalMode}
+        />
+      )}
+
+      {showSheet && (
+        <FiltersModal categories={categories} reqParams={reqParams} onClose={toggleSheet} setReqParams={setReqParams} />
       )}
     </ParallaxScrollView>
   );
@@ -98,5 +194,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: "absolute",
+  },
+  view: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  cards: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 3,
   },
 });

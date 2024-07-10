@@ -40,7 +40,7 @@ const FiltersModal = ({ reqParams, onClose, categories, setReqParams }: Props) =
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          height: "70%",
+          height: "50%",
         }}
         visible
         onDismiss={onClose}
@@ -82,24 +82,7 @@ const FiltersModal = ({ reqParams, onClose, categories, setReqParams }: Props) =
               style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}
             />
           </View>
-          <View style={styles.view}>
-            <Text>Categories</Text>
-            <FlatList
-              data={categories}
-              renderItem={({ item }) => (
-                <Chip
-                  style={{ margin: 2, width: 100 }}
-                  selected={reqParams.categoryId === item.id}
-                  onPress={() => {
-                    setReqParams((prev) => ({ ...prev, categoryId: item.id }));
-                  }}
-                >
-                  {item.name}
-                </Chip>
-              )}
-              keyExtractor={(item) => item.id}
-            />
-          </View>
+          
           <View style={styles.view}>
             <Text>Reset</Text>
             <IconButton

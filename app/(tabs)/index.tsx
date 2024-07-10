@@ -15,7 +15,6 @@ export default function HomeScreen() {
   const theme = useTheme();
   const colorScheme = useColorScheme();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [modalMode, setModalMode] = useState<string | null>(null);
   const [reqParams, setReqParams] = useState<RepParams>({
     date: "",
     filterText: "",
@@ -28,11 +27,6 @@ export default function HomeScreen() {
   const [showSheet, setShowSheet] = useState<boolean>(false);
 
   const toggleSheet = () => setShowSheet(!showSheet);
-
-  const toggleModal = (mode: string | null) => {
-    console.log(mode);
-    setModalMode(mode);
-  };
 
   const handleOpenBottomSheet = () => {
     toggleSheet();
@@ -91,7 +85,15 @@ export default function HomeScreen() {
           data={categories}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <Chip icon="star" style={{ margin: 4 }}>
+            <Chip icon="star"
+            onPress={()=> {
+              setReqParams({
+                ...reqParams,
+                categoryId: item.id
+              })
+            }}
+            
+            style={{ margin: 4 }}>
               {item.name}
             </Chip>
           )}
@@ -153,7 +155,6 @@ export default function HomeScreen() {
                   <IconButton
                     icon="pencil"
                     onPress={() => {
-                      toggleModal("edit");
                       setSelectedJournal(item);
                     }}
                     size={20}
